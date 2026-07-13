@@ -51,7 +51,8 @@ export const users = pgTable('users', {
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').notNull().default(false),
-  avatarUrl: text('avatar_url'),
+  // Better Auth reads this field as `image`; the DB column stays `avatar_url`.
+  image: text('avatar_url'),
   ...timestamps,
 });
 
