@@ -93,7 +93,7 @@ only when its variables are blank.
 Dayfold is built in agile phases. Current status:
 
 - [x] **Phase 0** — Scaffold & foundations (monorepo, Docker, Drizzle schema, seed, sync skeleton)
-- [ ] **Phase 1** — Auth & workspace bootstrap
+- [x] **Phase 1** — Auth & workspace bootstrap (Better Auth, signup bootstrap, app shell, theme toggle)
 - [ ] **Phase 2** — Projects, sections, tasks + List view
 - [ ] **Phase 3** — Board view
 - [ ] **Phase 4** — Block editor (static)

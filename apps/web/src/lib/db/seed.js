@@ -5,34 +5,22 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 
 import * as schema from './schema.js';
+import { bootstrapUserWorkspace } from '../../server/bootstrap.js';
 
 /**
- * Seeds a demo user (demo@demo.dev / demo1234) with a realistic workspace:
- * one project (3 sections + tasks) and one notes page. Idempotent — running it
- * again resets the demo workspace rather than duplicating it.
+ * Seeds a demo user (demo@demo.dev / demo1234) with a realistic workspace via
+ * the same bootstrap used on real signup. Idempotent — re-running resets the
+ * demo user rather than duplicating.
  *
  * Password hashing uses Better Auth's own hasher so the demo account can log in
- * through the normal auth flow (wired in Phase 1).
+ * through the normal auth flow.
  */
 
 const DEMO_EMAIL = 'demo@demo.dev';
 const DEMO_PASSWORD = 'demo1234';
 const DEMO_NAME = 'Demo User';
 
-/** A minimal empty-but-valid editor document snapshot. */
-function emptyDoc(text = '') {
-  const json = {
-    type: 'doc',
-    content: text
-      ? [{ type: 'paragraph', content: [{ type: 'text', text }] }]
-      : [{ type: 'paragraph' }],
-  };
-  return { json, text };
-}
-
 async function hashDemoPassword(password) {
-  // Better Auth exposes its default scrypt hasher here; keeps the demo account
-  // loginable via the standard email/password provider.
   const { hashPassword } = await import('better-auth/crypto');
   return hashPassword(password);
 }
@@ -68,110 +56,8 @@ async function main() {
     password: await hashDemoPassword(DEMO_PASSWORD),
   });
 
-  // Workspace + owner membership.
-  const [workspace] = await db
-    .insert(schema.workspaces)
-    .values({ name: `${DEMO_NAME}'s Workspace`, plan: 'free', createdBy: user.id })
-    .returning();
-  if (!workspace) throw new Error('Failed to create workspace');
-
-  await db.insert(schema.workspaceMembers).values({
-    workspaceId: workspace.id,
-    userId: user.id,
-    role: 'owner',
-  });
-
-  // Sample project + sections.
-  const [project] = await db
-    .insert(schema.projects)
-    .values({
-      workspaceId: workspace.id,
-      name: 'Product Launch',
-      color: '#8b5cf6',
-      icon: '🚀',
-      description: 'Everything to get Dayfold v1 out the door.',
-      sortOrder: '1',
-    })
-    .returning();
-  if (!project) throw new Error('Failed to create project');
-
-  const sectionRows = await db
-    .insert(schema.sections)
-    .values([
-      { projectId: project.id, name: 'To Do', sortOrder: '1' },
-      { projectId: project.id, name: 'In Progress', sortOrder: '2' },
-      { projectId: project.id, name: 'Done', sortOrder: '3' },
-    ])
-    .returning();
-  const [todo, inProgress, done] = sectionRows;
-  if (!todo || !inProgress || !done) throw new Error('Failed to create sections');
-
-  const today = new Date();
-  const inDays = (n) => {
-    const d = new Date(today);
-    d.setDate(d.getDate() + n);
-    return d.toISOString().slice(0, 10);
-  };
-
-  await db.insert(schema.tasks).values([
-    {
-      workspaceId: workspace.id,
-      projectId: project.id,
-      sectionId: todo.id,
-      title: 'Write launch announcement',
-      priority: 'high',
-      dueDate: inDays(3),
-      assigneeId: user.id,
-      sortOrder: '1',
-    },
-    {
-      workspaceId: workspace.id,
-      projectId: project.id,
-      sectionId: todo.id,
-      title: 'Design social media assets',
-      priority: 'medium',
-      dueDate: inDays(5),
-      assigneeId: user.id,
-      sortOrder: '2',
-    },
-    {
-      workspaceId: workspace.id,
-      projectId: project.id,
-      sectionId: inProgress.id,
-      title: 'Finalize pricing page',
-      priority: 'high',
-      dueDate: inDays(1),
-      assigneeId: user.id,
-      sortOrder: '1',
-    },
-    {
-      workspaceId: workspace.id,
-      projectId: project.id,
-      sectionId: done.id,
-      title: 'Set up analytics',
-      priority: 'low',
-      completed: true,
-      completedAt: new Date(),
-      assigneeId: user.id,
-      sortOrder: '1',
-    },
-  ]);
-
-  // Sample notes page with its own doc.
-  const welcome = emptyDoc('Welcome to Dayfold! This is your first note. Press "/" for blocks.');
-  const [pageDoc] = await db
-    .insert(schema.docs)
-    .values({ kind: 'page', snapshotJson: welcome.json, snapshotText: welcome.text })
-    .returning();
-  if (!pageDoc) throw new Error('Failed to create page doc');
-
-  await db.insert(schema.pages).values({
-    workspaceId: workspace.id,
-    title: 'Welcome to Dayfold',
-    icon: '👋',
-    docId: pageDoc.id,
-    sortOrder: '1',
-  });
+  // Same starter content as a real signup.
+  await bootstrapUserWorkspace(db, { userId: user.id, userName: DEMO_NAME });
 
   console.log(`Seed complete. Log in as ${DEMO_EMAIL} / ${DEMO_PASSWORD}`);
   await pool.end();

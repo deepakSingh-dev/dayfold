@@ -1,13 +1,18 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
+import { getSession } from '@/lib/session';
 
-export default function HomePage() {
+export default async function LandingPage() {
+  const session = await getSession();
+  if (session?.user) redirect('/home');
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
       <div className="mx-auto max-w-xl space-y-6">
         <span className="border-border bg-secondary text-muted-foreground inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium">
-          Phase 0 · Scaffold
+          Phase 1 · Auth &amp; workspace
         </span>
         <h1 className="text-5xl font-bold tracking-tight">
           Day<span className="text-primary">fold</span>
@@ -25,7 +30,8 @@ export default function HomePage() {
           </Button>
         </div>
         <p className="text-muted-foreground pt-4 text-xs">
-          Auth and the app shell land in Phase 1. The links above are placeholders for now.
+          Try the demo: <span className="text-foreground">demo@demo.dev</span> /{' '}
+          <span className="text-foreground">demo1234</span>
         </p>
       </div>
     </main>
