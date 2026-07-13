@@ -71,6 +71,18 @@ export async function getWorkspaceProjects(workspaceId) {
   });
 }
 
+/** Archived (but not deleted) projects, listed separately in the sidebar. */
+export async function getArchivedProjects(workspaceId) {
+  return db.query.projects.findMany({
+    where: and(
+      eq(schema.projects.workspaceId, workspaceId),
+      eq(schema.projects.isArchived, true),
+      isNull(schema.projects.deletedAt),
+    ),
+    orderBy: asc(schema.projects.sortOrder),
+  });
+}
+
 /** Non-deleted notes pages for a workspace (flat for now; tree comes in Phase 6). */
 export async function getWorkspacePages(workspaceId) {
   return db.query.pages.findMany({

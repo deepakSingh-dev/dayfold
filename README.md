@@ -94,7 +94,7 @@ Dayfold is built in agile phases. Current status:
 
 - [x] **Phase 0** — Scaffold & foundations (monorepo, Docker, Drizzle schema, seed, sync skeleton)
 - [x] **Phase 1** — Auth & workspace bootstrap (Better Auth, signup bootstrap, app shell, theme toggle)
-- [ ] **Phase 2** — Projects, sections, tasks + List view
+- [x] **Phase 2** — Projects, sections, tasks + List view, side-peek, My Tasks, Trash
 - [ ] **Phase 3** — Board view
 - [ ] **Phase 4** — Block editor (static)
 - [ ] **Phase 5** — Realtime (Yjs, Hocuspocus, live cursors)
