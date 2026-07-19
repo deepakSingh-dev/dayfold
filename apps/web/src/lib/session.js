@@ -5,14 +5,35 @@ import { and, asc, eq, isNull } from 'drizzle-orm';
 
 import { auth } from '@/lib/auth';
 import { db, schema } from '@/lib/db';
+import { devAuthBypass, env } from '@/lib/env';
 import { bootstrapUserWorkspace } from '@/server/bootstrap';
 
 /**
  * Returns the current Better Auth session (or null). Cached per-request so
  * multiple callers in one render don't re-hit the auth API.
+ *
+ * Dev-only: when devAuthBypass is on and there's no real session, we synthesise
+ * a session for DEV_BYPASS_EMAIL (falling back to the first user) so the app can
+ * be browsed without logging in.
  */
 export const getSession = cache(async () => {
-  return auth.api.getSession({ headers: await headers() });
+  const real = await auth.api.getSession({ headers: await headers() });
+  if (real?.user) return real;
+
+  if (devAuthBypass) {
+    const user =
+      (await db.query.users.findFirst({
+        where: eq(schema.users.email, env.DEV_BYPASS_EMAIL),
+      })) ?? (await db.query.users.findFirst());
+    if (user) {
+      return {
+        user: { id: user.id, name: user.name, email: user.email, image: user.image },
+        session: null,
+      };
+    }
+  }
+
+  return real;
 });
 
 /** Like getSession but redirects to /login when there is no session. */

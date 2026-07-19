@@ -78,6 +78,29 @@ export async function requireTask(taskId, workspaceId, { includeDeleted = false 
   return task;
 }
 
+/**
+ * A doc is accessible if it backs a task description or a notes page in the
+ * caller's workspace. Returns the doc row or throws 404.
+ */
+export async function requireDocAccess(docId, workspaceId) {
+  const doc = await db.query.docs.findFirst({ where: eq(schema.docs.id, docId) });
+  if (!doc) throw new ApiError(404, 'Document not found');
+
+  const task = await db.query.tasks.findFirst({
+    where: eq(schema.tasks.descriptionDocId, docId),
+    columns: { workspaceId: true },
+  });
+  if (task?.workspaceId === workspaceId) return doc;
+
+  const page = await db.query.pages.findFirst({
+    where: eq(schema.pages.docId, docId),
+    columns: { workspaceId: true },
+  });
+  if (page?.workspaceId === workspaceId) return doc;
+
+  throw new ApiError(404, 'Document not found');
+}
+
 export async function requireSection(sectionId, workspaceId) {
   const section = await db.query.sections.findFirst({
     where: eq(schema.sections.id, sectionId),

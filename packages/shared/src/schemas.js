@@ -90,6 +90,12 @@ export const createTaskSchema = z.object({
   dueDate: nullableDate.optional(),
 });
 
+/** Save payload for an editor document snapshot (JSON + plaintext for search). */
+export const saveDocSchema = z.object({
+  snapshotJson: z.any(),
+  snapshotText: z.string().max(500_000).default(''),
+});
+
 export const updateTaskSchema = z
   .object({
     title: z.string().trim().min(1).max(500),

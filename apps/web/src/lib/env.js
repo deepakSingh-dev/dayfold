@@ -16,6 +16,10 @@ const envSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   UPLOAD_DIR: z.string().default('./uploads'),
+  // Dev-only: when 'true', the app auto-signs-in as DEV_BYPASS_EMAIL so you can
+  // browse without logging in. Ignored in production (see devAuthBypass below).
+  DEV_AUTH_BYPASS: z.enum(['true', 'false']).default('false'),
+  DEV_BYPASS_EMAIL: z.string().default('demo@demo.dev'),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -29,3 +33,10 @@ export const env = parsed.data;
 
 /** True when Google OAuth creds are present so we can conditionally enable it. */
 export const googleOAuthEnabled = Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
+
+/**
+ * Dev-only auth bypass. Active only when the flag is 'true' AND we're not in a
+ * production build — so it can never accidentally ship.
+ */
+export const devAuthBypass =
+  env.DEV_AUTH_BYPASS === 'true' && process.env.NODE_ENV !== 'production';

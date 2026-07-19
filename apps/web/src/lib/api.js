@@ -45,6 +45,20 @@ export const api = {
   deleteTask: (id) => request(`/api/tasks/${id}`, { method: 'DELETE' }),
   restoreTask: (id) => request(`/api/tasks/${id}/restore`, { method: 'POST' }),
 
+  // Docs (editor)
+  getTaskDoc: (taskId) => request(`/api/tasks/${taskId}/doc`),
+  saveDoc: (docId, body) => request(`/api/docs/${docId}`, { method: 'PUT', body }),
+
+  // Uploads
+  uploadImage: async (file) => {
+    const form = new FormData();
+    form.append('file', file);
+    const res = await fetch('/api/upload', { method: 'POST', body: form });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) throw new Error(data?.error || 'Upload failed');
+    return data; // { url, filename, size }
+  },
+
   // Aggregates
   myTasks: () => request('/api/my-tasks'),
   trash: () => request('/api/trash'),

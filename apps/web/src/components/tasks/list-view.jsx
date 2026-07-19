@@ -1,15 +1,16 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { Eye, EyeOff, Plus } from 'lucide-react';
+import { DndContext, DragOverlay, closestCorners } from '@dnd-kit/core';
 
-import { api, queryKeys } from '@/lib/api';
-import { useTaskMutations } from '@/hooks/use-tasks';
+import { api } from '@/lib/api';
+import { useColumnsDnd } from '@/hooks/use-columns-dnd';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { SectionGroup } from '@/components/tasks/section-group';
+import { ListSection } from '@/components/tasks/list-section';
+import { TaskRow } from '@/components/tasks/task-row';
 
 function ListSkeleton() {
   return (
@@ -25,37 +26,22 @@ function ListSkeleton() {
   );
 }
 
+const noop = () => {};
+
 export function ListView({ projectId, data, isLoading, onOpenTask }) {
-  const qc = useQueryClient();
-  const { updateTask, createTask, deleteTask } = useTaskMutations(projectId);
+  const { columns, activeTask, sensors, dndHandlers, mutations, invalidate } = useColumnsDnd({
+    data,
+    projectId,
+  });
   const [showCompleted, setShowCompleted] = useState(false);
   const [addingSection, setAddingSection] = useState(false);
   const [sectionName, setSectionName] = useState('');
 
-  const invalidate = () => qc.invalidateQueries({ queryKey: queryKeys.projectData(projectId) });
-
-  // Group tasks by section, preserving section order; add a "No section" group last.
-  const groups = useMemo(() => {
-    if (!data) return [];
-    const bySection = new Map();
-    for (const s of data.sections) bySection.set(s.id, []);
-    const orphans = [];
-    for (const t of data.tasks) {
-      if (t.sectionId && bySection.has(t.sectionId)) bySection.get(t.sectionId).push(t);
-      else orphans.push(t);
-    }
-    const result = data.sections.map((s) => ({ section: s, tasks: bySection.get(s.id) }));
-    if (orphans.length) result.push({ section: null, tasks: orphans });
-    return result;
-  }, [data]);
-
-  if (isLoading && !data) return <ListSkeleton />;
-
-  const totalTasks = data?.tasks.length ?? 0;
-
-  const onToggle = (task, completed) => updateTask.mutate({ id: task.id, patch: { completed } });
-  const onAddTask = (title, sectionId) => createTask.mutate({ projectId, sectionId, title });
-  const onDelete = (id) => deleteTask.mutate(id);
+  const onToggle = (t, completed) =>
+    mutations.updateTask.mutate({ id: t.id, patch: { completed } });
+  const onAddTask = (title, sectionId) =>
+    mutations.createTask.mutate({ projectId, sectionId, title });
+  const onDelete = (id) => mutations.deleteTask.mutate(id);
 
   async function onRenameSection(id, name) {
     try {
@@ -92,6 +78,13 @@ export function ListView({ projectId, data, isLoading, onOpenTask }) {
     }
   }
 
+  if (isLoading && !data) return <ListSkeleton />;
+
+  const totalVisible = columns.reduce(
+    (n, c) => n + (showCompleted ? c.tasks.length : c.tasks.filter((t) => !t.completed).length),
+    0,
+  );
+
   return (
     <div className="mx-auto max-w-4xl px-6 py-4">
       <div className="mb-2 flex items-center justify-end">
@@ -101,28 +94,37 @@ export function ListView({ projectId, data, isLoading, onOpenTask }) {
         </Button>
       </div>
 
-      {totalTasks === 0 && groups.every((g) => g.tasks.length === 0) && (
+      {totalVisible === 0 && (
         <p className="text-muted-foreground px-2 py-6 text-sm">
           No tasks yet. Add one below to get started.
         </p>
       )}
 
-      {groups.map((g) => {
-        const visible = showCompleted ? g.tasks : g.tasks.filter((t) => !t.completed);
-        return (
-          <SectionGroup
-            key={g.section?.id ?? 'no-section'}
-            section={g.section}
-            tasks={visible}
-            onToggle={onToggle}
-            onOpen={onOpenTask}
-            onDelete={onDelete}
-            onAddTask={onAddTask}
-            onRenameSection={onRenameSection}
-            onDeleteSection={onDeleteSection}
-          />
-        );
-      })}
+      <DndContext sensors={sensors} collisionDetection={closestCorners} {...dndHandlers}>
+        {columns.map((col) => {
+          const visible = showCompleted ? col.tasks : col.tasks.filter((t) => !t.completed);
+          return (
+            <ListSection
+              key={col.id}
+              column={{ ...col, tasks: visible }}
+              onToggle={onToggle}
+              onOpen={onOpenTask}
+              onDelete={onDelete}
+              onAddTask={onAddTask}
+              onRenameSection={onRenameSection}
+              onDeleteSection={onDeleteSection}
+            />
+          );
+        })}
+
+        <DragOverlay>
+          {activeTask ? (
+            <div className="border-border bg-card rounded-md border shadow-lg">
+              <TaskRow task={activeTask} onToggle={noop} onOpen={noop} onDelete={noop} />
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
 
       {addingSection ? (
         <form onSubmit={onAddSection} className="px-2">

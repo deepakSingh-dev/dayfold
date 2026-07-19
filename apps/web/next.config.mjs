@@ -7,6 +7,8 @@ loadEnv({ path: resolve(process.cwd(), '../../.env') });
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Hide the dev-mode indicator; it overlaps the sidebar footer in the corner.
+  devIndicators: false,
   // @dayfold/shared ships raw JS via the workspace; let Next transpile it.
   transpilePackages: ['@dayfold/shared'],
   experimental: {

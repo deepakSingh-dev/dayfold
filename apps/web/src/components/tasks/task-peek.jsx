@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TaskCheckbox } from '@/components/ui/task-checkbox';
+import { BlockEditor } from '@/components/editor/block-editor';
 
 function Field({ label, children }) {
   return (
@@ -217,11 +218,11 @@ export function TaskPeek({ taskId, onClose, onOpenTask }) {
               </Field>
             </div>
 
-            {/* Description placeholder (Phase 4) */}
+            {/* Description — rich block editor */}
             <div>
               <p className="text-muted-foreground mb-1 text-xs font-medium">Description</p>
-              <div className="border-border text-muted-foreground rounded-md border border-dashed p-3 text-sm">
-                The rich block editor arrives in Phase 4.
+              <div className="border-border rounded-md border p-3">
+                <BlockEditor taskId={task.id} />
               </div>
             </div>
 

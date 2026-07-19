@@ -10,6 +10,11 @@ const APP_PREFIXES = ['/home', '/my-tasks', '/projects', '/notes', '/trash'];
 const AUTH_PATHS = ['/login', '/signup'];
 
 export function middleware(request) {
+  // Dev-only bypass: let every route through (getSession synthesises a user).
+  if (process.env.DEV_AUTH_BYPASS === 'true' && process.env.NODE_ENV !== 'production') {
+    return NextResponse.next();
+  }
+
   const { pathname } = request.nextUrl;
   const hasSession = Boolean(getSessionCookie(request));
 

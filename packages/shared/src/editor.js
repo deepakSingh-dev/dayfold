@@ -56,3 +56,6 @@ export function docRoomName(docId) {
 
 /** Origin tag applied to Yjs transactions from the server, to guard echo loops. */
 export const SERVER_YJS_ORIGIN = 'dayfold-server';
+
+/** A minimal empty-but-valid editor document. */
+export const EMPTY_DOC = { type: 'doc', content: [{ type: 'paragraph' }] };

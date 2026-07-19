@@ -1,10 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Archive, ArchiveRestore, List, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import {
+  Archive,
+  ArchiveRestore,
+  CalendarDays,
+  Columns3,
+  List,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+} from 'lucide-react';
 
 import { api, queryKeys } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -19,7 +28,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ProjectDialog } from '@/components/projects/project-dialog';
 import { ListView } from '@/components/tasks/list-view';
+import { BoardView } from '@/components/board/board-view';
 import { TaskPeek } from '@/components/tasks/task-peek';
+
+const VIEW_KEY = (id) => `dayfold:view:${id}`;
 
 function ViewTab({ active, disabled, icon: Icon, children, onClick }) {
   return (
@@ -48,6 +60,18 @@ export function ProjectView({ projectId, initialProject }) {
   const { data, isLoading } = useProjectData(projectId);
   const [openTaskId, setOpenTaskId] = useState(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [view, setView] = useState('list');
+
+  // Restore the last-used view for this project (persisted per project).
+  useEffect(() => {
+    const saved = typeof window !== 'undefined' && localStorage.getItem(VIEW_KEY(projectId));
+    if (saved === 'list' || saved === 'board') setView(saved);
+  }, [projectId]);
+
+  function selectView(next) {
+    setView(next);
+    if (typeof window !== 'undefined') localStorage.setItem(VIEW_KEY(projectId), next);
+  }
 
   const project = data?.project ?? initialProject;
 
@@ -115,25 +139,34 @@ export function ProjectView({ projectId, initialProject }) {
 
       {/* View tabs */}
       <div className="border-border flex items-center gap-1 border-b px-4">
-        <ViewTab active icon={List}>
+        <ViewTab active={view === 'list'} icon={List} onClick={() => selectView('list')}>
           List
         </ViewTab>
-        <ViewTab disabled icon={List}>
+        <ViewTab active={view === 'board'} icon={Columns3} onClick={() => selectView('board')}>
           Board
         </ViewTab>
-        <ViewTab disabled icon={List}>
+        <ViewTab disabled icon={CalendarDays}>
           Calendar
         </ViewTab>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto">
-        <ListView
-          projectId={projectId}
-          data={data}
-          isLoading={isLoading}
-          onOpenTask={setOpenTaskId}
-        />
+      <div className={cn('flex-1', view === 'board' ? 'overflow-hidden' : 'overflow-y-auto')}>
+        {view === 'board' ? (
+          <BoardView
+            projectId={projectId}
+            data={data}
+            isLoading={isLoading}
+            onOpenTask={setOpenTaskId}
+          />
+        ) : (
+          <ListView
+            projectId={projectId}
+            data={data}
+            isLoading={isLoading}
+            onOpenTask={setOpenTaskId}
+          />
+        )}
       </div>
 
       <ProjectDialog mode="edit" open={editOpen} onOpenChange={setEditOpen} project={project} />
