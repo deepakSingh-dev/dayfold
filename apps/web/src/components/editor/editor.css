@@ -1,0 +1,482 @@
+/* Block editor (Tiptap) styling. Uses the app's CSS variables so it works in
+   dark and light automatically. Scoped under .df-prose (the editor root). */
+
+.df-prose {
+  outline: none;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: hsl(var(--foreground));
+}
+
+.df-prose > * + * {
+  margin-top: 0.55rem;
+}
+
+.df-prose h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-top: 1.4rem;
+}
+.df-prose h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 1.2rem;
+}
+.df-prose h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.df-prose ul,
+.df-prose ol {
+  padding-left: 1.4rem;
+}
+.df-prose ul {
+  list-style: disc;
+}
+.df-prose ol {
+  list-style: decimal;
+}
+.df-prose li {
+  margin: 0.15rem 0;
+}
+.df-prose li > p {
+  margin: 0;
+}
+
+/* Task list (checklist) */
+.df-prose ul[data-type='taskList'] {
+  list-style: none;
+  padding-left: 0.2rem;
+}
+.df-prose ul[data-type='taskList'] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.df-prose ul[data-type='taskList'] li > label {
+  margin-top: 0.15rem;
+  user-select: none;
+}
+.df-prose ul[data-type='taskList'] input[type='checkbox'] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: hsl(var(--primary));
+  cursor: pointer;
+}
+.df-prose ul[data-type='taskList'] li[data-checked='true'] > div {
+  color: hsl(var(--muted-foreground));
+  text-decoration: line-through;
+}
+
+.df-prose blockquote {
+  border-left: 3px solid hsl(var(--border));
+  padding-left: 0.9rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.df-prose hr {
+  border: none;
+  border-top: 1px solid hsl(var(--border));
+  margin: 1rem 0;
+}
+
+.df-prose a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.df-prose code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+  background: hsl(var(--muted));
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+}
+
+.df-prose img {
+  max-width: 100%;
+  border-radius: 0.5rem;
+  margin: 0.4rem 0;
+}
+
+.df-prose p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: hsl(var(--muted-foreground));
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Callout */
+.df-callout {
+  display: flex;
+  gap: 0.6rem;
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  padding: 0.7rem 0.8rem;
+}
+.df-callout-emoji {
+  position: relative;
+}
+.df-callout-emoji-btn {
+  font-size: 1.1rem;
+  line-height: 1.4;
+  border-radius: 4px;
+  padding: 0 0.15rem;
+}
+.df-callout-emoji-btn:hover {
+  background: hsl(var(--accent));
+}
+.df-callout-content {
+  flex: 1;
+  min-width: 0;
+}
+.df-callout-content > p {
+  margin: 0;
+}
+.df-emoji-pop {
+  position: absolute;
+  z-index: 20;
+  top: 1.7rem;
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+  background: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  padding: 0.3rem;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.25);
+}
+.df-emoji-pop button {
+  font-size: 1.05rem;
+  padding: 0.15rem;
+  border-radius: 4px;
+}
+.df-emoji-pop button:hover {
+  background: hsl(var(--accent));
+}
+
+/* Code block with language dropdown */
+.df-codeblock {
+  position: relative;
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.7rem 0.6rem;
+}
+.df-code-lang {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  font-size: 0.7rem;
+  background: hsl(var(--background));
+  color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: 4px;
+  padding: 0.05rem 0.3rem;
+}
+.df-codeblock pre {
+  margin: 0;
+  overflow-x: auto;
+}
+.df-codeblock code {
+  background: transparent;
+  padding: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* lowlight syntax tokens */
+.df-prose .hljs-comment,
+.df-prose .hljs-quote {
+  color: #7c7f93;
+}
+.df-prose .hljs-keyword,
+.df-prose .hljs-selector-tag,
+.df-prose .hljs-literal {
+  color: #8b5cf6;
+}
+.df-prose .hljs-string,
+.df-prose .hljs-attr {
+  color: #10b981;
+}
+.df-prose .hljs-number,
+.df-prose .hljs-built_in {
+  color: #f59e0b;
+}
+.df-prose .hljs-title,
+.df-prose .hljs-function .hljs-title,
+.df-prose .hljs-name {
+  color: #3b82f6;
+}
+
+/* Toggle (collapsible) block */
+.df-toggle {
+  display: flex;
+  gap: 0.4rem;
+}
+.df-toggle-caret {
+  margin-top: 0.15rem;
+  color: hsl(var(--muted-foreground));
+  border-radius: 4px;
+}
+.df-toggle-caret:hover {
+  background: hsl(var(--accent));
+}
+.df-toggle-caret svg {
+  transition: transform 0.12s ease;
+}
+.df-toggle-content {
+  flex: 1;
+  min-width: 0;
+}
+.df-toggle-content > * + * {
+  margin-top: 0.3rem;
+}
+/* React NodeView wraps content in an extra div, so the blocks are grandchildren. */
+.df-toggle.is-collapsed .df-toggle-content > * > *:not(:first-child) {
+  display: none;
+}
+
+/* Bubble (turn-into / format) menu */
+.df-bubble {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  padding: 3px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+}
+.df-bm-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 0.35rem;
+  font-size: 0.8rem;
+  color: hsl(var(--popover-foreground));
+}
+.df-bm-btn:hover {
+  background: hsl(var(--accent));
+}
+.df-bm-btn.is-active {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+.df-bm-sep {
+  width: 1px;
+  height: 1.2rem;
+  background: hsl(var(--border));
+  margin: 0 2px;
+}
+.df-bm-turn {
+  position: relative;
+}
+.df-bm-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  min-width: 11rem;
+  background: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.28);
+}
+.df-bm-menu button {
+  text-align: left;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.35rem;
+  font-size: 0.82rem;
+}
+.df-bm-menu button:hover {
+  background: hsl(var(--accent));
+}
+.df-bm-menu button.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Global drag handle (block reorder) */
+.df-prose {
+  padding-left: 1.35rem;
+}
+.drag-handle {
+  position: absolute;
+  width: 1.1rem;
+  height: 1.4rem;
+  border-radius: 0.3rem;
+  cursor: grab;
+  z-index: 40;
+  opacity: 0.55;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='%239ca3af'><circle cx='6' cy='4' r='1.3'/><circle cx='10' cy='4' r='1.3'/><circle cx='6' cy='8' r='1.3'/><circle cx='10' cy='8' r='1.3'/><circle cx='6' cy='12' r='1.3'/><circle cx='10' cy='12' r='1.3'/></svg>");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+}
+.drag-handle:hover {
+  background-color: hsl(var(--accent));
+  opacity: 1;
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+.drag-handle.hide {
+  display: none;
+}
+
+/* Turn-into-task block */
+.df-task-block {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--muted));
+}
+.df-task-block-check {
+  width: 1rem;
+  height: 1rem;
+  accent-color: hsl(var(--primary));
+  cursor: pointer;
+}
+.df-task-block-title {
+  flex: 1;
+  min-width: 0;
+}
+.df-task-block.is-completed .df-task-block-title {
+  color: hsl(var(--muted-foreground));
+  text-decoration: line-through;
+}
+.df-task-block-link {
+  font-size: 0.72rem;
+  color: hsl(var(--primary)) !important;
+  text-decoration: none !important;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+.df-task-block:hover .df-task-block-link {
+  opacity: 1;
+}
+.df-task-block-hint {
+  font-size: 0.72rem;
+  color: hsl(var(--muted-foreground));
+}
+.df-task-block.is-deleted .df-task-block-title {
+  color: hsl(var(--muted-foreground));
+  text-decoration: line-through;
+}
+
+/* Sub-page link block */
+.df-page-link {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.4rem;
+  text-decoration: none !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--muted));
+  font-weight: 500;
+}
+.df-page-link:hover {
+  background: hsl(var(--accent));
+}
+
+/* Collaboration cursors (live carets + name labels) */
+.collaboration-cursor__caret {
+  position: relative;
+  margin-left: -1px;
+  margin-right: -1px;
+  border-left: 1px solid #0d0d0d;
+  border-right: 1px solid #0d0d0d;
+  word-break: normal;
+  pointer-events: none;
+}
+.collaboration-cursor__label {
+  position: absolute;
+  top: -1.4em;
+  left: -1px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1;
+  color: #fff;
+  white-space: nowrap;
+  border-radius: 3px 3px 3px 0;
+  padding: 0.1rem 0.3rem;
+  user-select: none;
+}
+
+/* Slash menu popup */
+.df-slash-popup {
+  z-index: 60;
+}
+.df-slash-list {
+  width: 18rem;
+  max-height: 20rem;
+  overflow-y: auto;
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.6rem;
+  padding: 0.3rem;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.28);
+}
+.df-slash-empty {
+  width: 14rem;
+  padding: 0.6rem;
+  font-size: 0.85rem;
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.6rem;
+}
+.df-slash-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.4rem;
+}
+.df-slash-item.is-selected {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+.df-slash-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.4rem;
+  background: hsl(var(--muted));
+}
+.df-slash-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.df-slash-title {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.df-slash-sub {
+  font-size: 0.72rem;
+  color: hsl(var(--muted-foreground));
+}

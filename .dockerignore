@@ -1,0 +1,11 @@
+**/node_modules
+**/.next
+**/dist
+**/coverage
+**/.turbo
+.git
+postgres-data
+uploads
+*.log
+.env
+.env*.local
