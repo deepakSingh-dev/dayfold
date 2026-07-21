@@ -19,6 +19,8 @@ import { bootstrapUserWorkspace } from '../../server/bootstrap.js';
 const DEMO_EMAIL = 'demo@demo.dev';
 const DEMO_PASSWORD = 'demo1234';
 const DEMO_NAME = 'Demo User';
+const DEMO2_EMAIL = 'demo2@demo.dev';
+const DEMO2_NAME = 'Casey Rivera';
 
 async function hashDemoPassword(password) {
   const { hashPassword } = await import('better-auth/crypto');
@@ -57,9 +59,36 @@ async function main() {
   });
 
   // Same starter content as a real signup.
-  await bootstrapUserWorkspace(db, { userId: user.id, userName: DEMO_NAME });
+  const { workspaceId } = await bootstrapUserWorkspace(db, {
+    userId: user.id,
+    userName: DEMO_NAME,
+  });
+
+  // A second member in the same workspace, for testing realtime collaboration.
+  const existing2 = await db.query.users.findFirst({
+    where: eq(schema.users.email, DEMO2_EMAIL),
+  });
+  if (existing2) {
+    await db.delete(schema.users).where(eq(schema.users.id, existing2.id));
+  }
+  const [user2] = await db
+    .insert(schema.users)
+    .values({ name: DEMO2_NAME, email: DEMO2_EMAIL, emailVerified: true })
+    .returning();
+  await db.insert(schema.accounts).values({
+    accountId: user2.id,
+    providerId: 'credential',
+    userId: user2.id,
+    password: await hashDemoPassword(DEMO_PASSWORD),
+  });
+  await db.insert(schema.workspaceMembers).values({
+    workspaceId,
+    userId: user2.id,
+    role: 'member',
+  });
 
   console.log(`Seed complete. Log in as ${DEMO_EMAIL} / ${DEMO_PASSWORD}`);
+  console.log(`Collaborator: ${DEMO2_EMAIL} / ${DEMO_PASSWORD} (same workspace)`);
   await pool.end();
 }
 

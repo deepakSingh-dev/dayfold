@@ -6,10 +6,15 @@ import { getSessionCookie } from 'better-auth/cookies';
  * optimisation only — the real authorization check happens server-side in the
  * (app) layout via auth.api.getSession.
  */
-const APP_PREFIXES = ['/home', '/my-tasks', '/projects', '/notes', '/trash'];
+const APP_PREFIXES = ['/home', '/my-tasks', '/projects', '/notes', '/trash', '/task'];
 const AUTH_PATHS = ['/login', '/signup'];
 
 export function middleware(request) {
+  // Dev-only bypass: let every route through (getSession synthesises a user).
+  if (process.env.DEV_AUTH_BYPASS === 'true' && process.env.NODE_ENV !== 'production') {
+    return NextResponse.next();
+  }
+
   const { pathname } = request.nextUrl;
   const hasSession = Boolean(getSessionCookie(request));
 
@@ -36,6 +41,7 @@ export const config = {
     '/projects/:path*',
     '/notes/:path*',
     '/trash/:path*',
+    '/task/:path*',
     '/login',
     '/signup',
   ],

@@ -1,10 +1,10 @@
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { and, eq, isNull } from 'drizzle-orm';
 
 import { db, schema } from '@/lib/db';
 import { getActiveWorkspace, getSession } from '@/lib/session';
-import { PageHeader } from '@/components/layout/page-header';
-import { ComingSoon } from '@/components/layout/coming-soon';
+import { ProjectView } from '@/components/projects/project-view';
 
 export default async function ProjectPage({ params }) {
   const { id } = await params;
@@ -23,11 +23,17 @@ export default async function ProjectPage({ params }) {
   if (!project) notFound();
 
   return (
-    <>
-      <PageHeader title={`${project.icon ? `${project.icon} ` : ''}${project.name}`} />
-      <ComingSoon title={project.name} phase="Phase 2">
-        List, Board, and Calendar views for this project are coming next.
-      </ComingSoon>
-    </>
+    <Suspense>
+      <ProjectView
+        projectId={project.id}
+        initialProject={{
+          id: project.id,
+          name: project.name,
+          icon: project.icon,
+          color: project.color,
+          isArchived: project.isArchived,
+        }}
+      />
+    </Suspense>
   );
 }

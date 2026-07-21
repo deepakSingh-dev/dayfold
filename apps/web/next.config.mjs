@@ -6,7 +6,12 @@ loadEnv({ path: resolve(process.cwd(), '../../.env') });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  // Disabled: StrictMode's dev-only double-mount races the Yjs/ProseMirror
+  // binding + React NodeViews, causing insertBefore DOM errors. Prod never
+  // double-mounts, so this makes dev behave like prod.
+  reactStrictMode: false,
+  // Hide the dev-mode indicator; it overlaps the sidebar footer in the corner.
+  devIndicators: false,
   // @dayfold/shared ships raw JS via the workspace; let Next transpile it.
   transpilePackages: ['@dayfold/shared'],
   experimental: {

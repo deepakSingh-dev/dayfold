@@ -1,8 +1,8 @@
 import {
   requireSession,
   getActiveWorkspace,
+  getArchivedProjects,
   getWorkspaceProjects,
-  getWorkspacePages,
 } from '@/lib/session';
 import { Sidebar } from '@/components/layout/sidebar';
 
@@ -14,9 +14,9 @@ export default async function AppLayout({ children }) {
   const session = await requireSession();
   const workspace = await getActiveWorkspace(session.user.id);
 
-  const [projects, pages] = await Promise.all([
+  const [projects, archivedProjects] = await Promise.all([
     getWorkspaceProjects(workspace.id),
-    getWorkspacePages(workspace.id),
+    getArchivedProjects(workspace.id),
   ]);
 
   const user = {
@@ -27,7 +27,12 @@ export default async function AppLayout({ children }) {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar user={user} workspace={workspace} projects={projects} pages={pages} />
+      <Sidebar
+        user={user}
+        workspace={workspace}
+        projects={projects}
+        archivedProjects={archivedProjects}
+      />
       <main className="flex-1 overflow-y-auto">{children}</main>
     </div>
   );
