@@ -90,6 +90,79 @@ export const createTaskSchema = z.object({
   dueDate: nullableDate.optional(),
 });
 
+// ---------------------------------------------------------------------------
+// Notes pages (Phase 6)
+// ---------------------------------------------------------------------------
+
+export const createPageSchema = z.object({
+  parentPageId: uuid.nullable().optional(),
+  title: z.string().trim().max(200).optional(),
+  icon: z.string().min(1).max(8).optional(),
+});
+
+export const updatePageSchema = z
+  .object({
+    title: z.string().trim().max(200),
+    icon: z.string().min(1).max(8).nullable(),
+    parentPageId: uuid.nullable(),
+    sortOrder: z.string(),
+  })
+  .partial();
+
+// ---------------------------------------------------------------------------
+// Comments (Phase 9)
+// ---------------------------------------------------------------------------
+
+export const createCommentSchema = z.object({
+  body: z.string().trim().min(1, 'Comment cannot be empty').max(5000),
+});
+
+export const updateCommentSchema = z.object({
+  body: z.string().trim().min(1).max(5000),
+});
+
+// ---------------------------------------------------------------------------
+// Custom fields + dependencies (Phase 8)
+// ---------------------------------------------------------------------------
+
+const selectOption = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1).max(80),
+  color: z.string().max(40),
+});
+
+export const createFieldSchema = z.object({
+  name: z.string().trim().min(1, 'Name is required').max(80),
+  type: customFieldTypeSchema,
+  options: z.array(selectOption).optional(),
+});
+
+export const updateFieldSchema = z
+  .object({
+    name: z.string().trim().min(1).max(80),
+    options: z.array(selectOption),
+  })
+  .partial();
+
+export const setFieldValueSchema = z.object({
+  fieldDefId: uuid,
+  value: z.any(),
+});
+
+export const addDependencySchema = z.object({
+  dependsOnTaskId: uuid,
+});
+
+/** "Turn into task" from an editor block. */
+export const createTaskBlockSchema = z.object({
+  docId: uuid,
+  blockId: z.string().min(1).max(200),
+  projectId: uuid,
+  sectionId: uuid.nullable().optional(),
+  title: z.string().trim().min(1, 'Title is required').max(500),
+  sourcePageId: uuid.nullable().optional(),
+});
+
 /** Save payload for an editor document snapshot (JSON + plaintext for search). */
 export const saveDocSchema = z.object({
   snapshotJson: z.any(),

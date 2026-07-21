@@ -21,6 +21,7 @@ import { Wordmark } from '@/components/brand';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { ProjectDialog } from '@/components/projects/project-dialog';
+import { NotesTree } from '@/components/notes/notes-tree';
 
 function NavLink({ href, icon: Icon, label, active }) {
   return (
@@ -71,7 +72,7 @@ function ProjectLink({ project, active }) {
  * Left app-shell sidebar. Receives already-loaded, serializable data from the
  * (app) layout server component.
  */
-export function Sidebar({ user, workspace, projects, archivedProjects = [], pages }) {
+export function Sidebar({ user, workspace, projects, archivedProjects = [] }) {
   const pathname = usePathname();
   const router = useRouter();
   const [createOpen, setCreateOpen] = useState(false);
@@ -179,30 +180,7 @@ export function Sidebar({ user, workspace, projects, archivedProjects = [], page
             </div>
           )}
 
-          <SectionHeading>Notes</SectionHeading>
-          <div className="flex flex-col gap-0.5">
-            {pages.length === 0 && (
-              <p className="text-muted-foreground px-2 py-1 text-sm">No pages yet</p>
-            )}
-            {pages.map((page) => {
-              const active = pathname.startsWith(`/notes/${page.id}`);
-              return (
-                <Link
-                  key={page.id}
-                  href={`/notes/${page.id}`}
-                  className={cn(
-                    'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
-                    active
-                      ? 'bg-accent text-accent-foreground font-medium'
-                      : 'text-sidebar-foreground hover:bg-accent/60',
-                  )}
-                >
-                  <span className="text-base leading-none">{page.icon || '📄'}</span>
-                  <span className="truncate">{page.title}</span>
-                </Link>
-              );
-            })}
-          </div>
+          <NotesTree />
 
           <div className="mt-4 flex flex-col gap-0.5">
             <NavLink

@@ -12,6 +12,7 @@ import {
   requireTask,
 } from '@/server/api';
 import { getFullTask, serializeTask } from '@/server/task-service';
+import { degradeTaskBlocks, pushTaskBlockUpdate } from '@/server/task-sync';
 
 // GET /api/tasks/[id] — full task for the side-peek (with subtasks).
 export async function GET(_request, { params }) {
@@ -64,6 +65,14 @@ export async function PATCH(request, { params }) {
         .where(eq(schema.tasks.parentTaskId, id));
     }
 
+    // Two-way sync: reflect title/completion changes into any embedded blocks.
+    if (typeof data.completed === 'boolean' || typeof data.title === 'string') {
+      const blockUpdate = {};
+      if (typeof data.completed === 'boolean') blockUpdate.completed = data.completed;
+      if (typeof data.title === 'string') blockUpdate.title = updated.title;
+      await pushTaskBlockUpdate(id, blockUpdate);
+    }
+
     return Response.json({ task: serializeTask(updated) });
   } catch (err) {
     return jsonError(err);
@@ -92,6 +101,9 @@ export async function DELETE(_request, { params }) {
       .update(schema.tasks)
       .set({ deletedAt: now, updatedAt: now })
       .where(and(eq(schema.tasks.parentTaskId, id), isNull(schema.tasks.deletedAt)));
+
+    // Degrade any embedded doc blocks to "(task deleted)".
+    await degradeTaskBlocks(id);
 
     return Response.json({ ok: true });
   } catch (err) {

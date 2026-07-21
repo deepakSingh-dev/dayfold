@@ -8,7 +8,8 @@
     ".": "./src/index.js",
     "./editor": "./src/editor.js",
     "./constants": "./src/constants.js",
-    "./schemas": "./src/schemas.js"
+    "./schemas": "./src/schemas.js",
+    "./token": "./src/token.js"
   },
   "dependencies": {
     "zod": "^3.24.1"

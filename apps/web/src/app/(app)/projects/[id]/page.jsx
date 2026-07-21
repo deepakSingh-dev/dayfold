@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { and, eq, isNull } from 'drizzle-orm';
 
@@ -22,15 +23,17 @@ export default async function ProjectPage({ params }) {
   if (!project) notFound();
 
   return (
-    <ProjectView
-      projectId={project.id}
-      initialProject={{
-        id: project.id,
-        name: project.name,
-        icon: project.icon,
-        color: project.color,
-        isArchived: project.isArchived,
-      }}
-    />
+    <Suspense>
+      <ProjectView
+        projectId={project.id}
+        initialProject={{
+          id: project.id,
+          name: project.name,
+          icon: project.icon,
+          color: project.color,
+          isArchived: project.isArchived,
+        }}
+      />
+    </Suspense>
   );
 }

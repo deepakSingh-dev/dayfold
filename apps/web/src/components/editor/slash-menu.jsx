@@ -4,7 +4,9 @@ import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { ReactRenderer } from '@tiptap/react';
 import {
   CheckSquare,
+  ChevronRight,
   Code2,
+  FileText,
   Heading1,
   Heading2,
   Heading3,
@@ -24,8 +26,8 @@ import { cn } from '@/lib/utils';
  * chosen (it opens a file picker in the editor). Each item's `command` runs the
  * corresponding Tiptap chain.
  */
-export function getSlashItems({ onImage }) {
-  return [
+export function getSlashItems({ onImage, onCreateSubPage }) {
+  const items = [
     {
       title: 'Text',
       subtitle: 'Plain paragraph',
@@ -106,6 +108,13 @@ export function getSlashItems({ onImage }) {
       command: ({ editor, range }) => editor.chain().focus().deleteRange(range).setCallout().run(),
     },
     {
+      title: 'Toggle',
+      subtitle: 'Collapsible section',
+      icon: ChevronRight,
+      terms: ['toggle', 'collapse', 'accordion', 'details'],
+      command: ({ editor, range }) => editor.chain().focus().deleteRange(range).setToggle().run(),
+    },
+    {
       title: 'Divider',
       subtitle: 'Horizontal rule',
       icon: Minus,
@@ -124,6 +133,31 @@ export function getSlashItems({ onImage }) {
       },
     },
   ];
+
+  if (onCreateSubPage) {
+    items.push({
+      title: 'Sub-page',
+      subtitle: 'Create a nested page',
+      icon: FileText,
+      terms: ['page', 'subpage', 'sub-page', 'nested'],
+      command: async ({ editor, range }) => {
+        editor.chain().focus().deleteRange(range).run();
+        const page = await onCreateSubPage();
+        if (page) {
+          editor
+            .chain()
+            .focus()
+            .insertContent({
+              type: 'pageLink',
+              attrs: { pageId: page.id, title: page.title, icon: page.icon },
+            })
+            .run();
+        }
+      },
+    });
+  }
+
+  return items;
 }
 
 export function filterSlashItems(items, query) {

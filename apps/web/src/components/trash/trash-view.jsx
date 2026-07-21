@@ -39,9 +39,20 @@ export function TrashView() {
     onError: (err) => toast.error(err.message || 'Could not restore task'),
   });
 
+  const restorePage = useMutation({
+    mutationFn: (id) => api.restorePage(id),
+    onSuccess: () => {
+      toast.success('Page restored');
+      refresh();
+      qc.invalidateQueries({ queryKey: queryKeys.pages });
+    },
+    onError: (err) => toast.error(err.message || 'Could not restore page'),
+  });
+
   const projects = data?.projects ?? [];
   const tasks = data?.tasks ?? [];
-  const isEmpty = !isLoading && projects.length === 0 && tasks.length === 0;
+  const pages = data?.pages ?? [];
+  const isEmpty = !isLoading && projects.length === 0 && tasks.length === 0 && pages.length === 0;
 
   return (
     <>
@@ -80,6 +91,28 @@ export function TrashView() {
                     size="sm"
                     onClick={() => restoreProject.mutate(p.id)}
                     disabled={restoreProject.isPending}
+                  >
+                    <RotateCcw /> Restore
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {pages.length > 0 && (
+          <section className="mb-6">
+            <h2 className="mb-1 text-sm font-semibold">Pages</h2>
+            <div className="divide-border/60 border-border divide-y rounded-md border">
+              {pages.map((p) => (
+                <div key={p.id} className="flex items-center gap-3 px-3 py-2">
+                  <span className="text-lg">{p.icon || '📄'}</span>
+                  <span className="flex-1 truncate text-sm">{p.title}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => restorePage.mutate(p.id)}
+                    disabled={restorePage.isPending}
                   >
                     <RotateCcw /> Restore
                   </Button>

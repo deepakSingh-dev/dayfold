@@ -5,10 +5,16 @@ import { CSS } from '@dnd-kit/utilities';
 
 import { cn } from '@/lib/utils';
 import { TaskCheckbox } from '@/components/ui/task-checkbox';
-import { DueChip, PriorityBadge, SubtaskCounter } from '@/components/tasks/task-chips';
+import {
+  BlockedBadge,
+  DueChip,
+  FieldBadges,
+  PriorityBadge,
+  SubtaskCounter,
+} from '@/components/tasks/task-chips';
 
 /** Presentational card (also used inside the DragOverlay). */
-export function BoardCardBody({ task, onToggle, onOpen, dragging }) {
+export function BoardCardBody({ task, fields, onToggle, onOpen, dragging }) {
   return (
     <div
       className={cn(
@@ -36,19 +42,19 @@ export function BoardCardBody({ task, onToggle, onOpen, dragging }) {
           {task.title}
         </button>
       </div>
-      {(task.dueDate || task.priority || task.subtaskTotal > 0) && (
-        <div className="mt-2 flex flex-wrap items-center gap-1.5 pl-6">
-          <PriorityBadge priority={task.priority} />
-          <DueChip dueDate={task.dueDate} completed={task.completed} />
-          <SubtaskCounter total={task.subtaskTotal} done={task.subtaskDone} />
-        </div>
-      )}
+      <div className="mt-2 flex flex-wrap items-center gap-1.5 pl-6 empty:mt-0">
+        <FieldBadges fields={fields} values={task.fieldValues} />
+        <BlockedBadge count={task.blockedBy} />
+        <PriorityBadge priority={task.priority} />
+        <DueChip dueDate={task.dueDate} completed={task.completed} />
+        <SubtaskCounter total={task.subtaskTotal} done={task.subtaskDone} />
+      </div>
     </div>
   );
 }
 
 /** Sortable wrapper around a board card. */
-export function BoardCard({ task, containerId, onToggle, onOpen }) {
+export function BoardCard({ task, fields, containerId, onToggle, onOpen }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
     data: { type: 'card', containerId },
@@ -62,7 +68,7 @@ export function BoardCard({ task, containerId, onToggle, onOpen }) {
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="touch-none">
-      <BoardCardBody task={task} onToggle={onToggle} onOpen={onOpen} />
+      <BoardCardBody task={task} fields={fields} onToggle={onToggle} onOpen={onOpen} />
     </div>
   );
 }

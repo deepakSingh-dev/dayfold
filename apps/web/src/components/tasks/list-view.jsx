@@ -33,6 +33,7 @@ export function ListView({ projectId, data, isLoading, onOpenTask }) {
     data,
     projectId,
   });
+  const fields = data?.fields ?? [];
   const [showCompleted, setShowCompleted] = useState(false);
   const [addingSection, setAddingSection] = useState(false);
   const [sectionName, setSectionName] = useState('');
@@ -107,6 +108,7 @@ export function ListView({ projectId, data, isLoading, onOpenTask }) {
             <ListSection
               key={col.id}
               column={{ ...col, tasks: visible }}
+              fields={fields}
               onToggle={onToggle}
               onOpen={onOpenTask}
               onDelete={onDelete}
@@ -120,7 +122,13 @@ export function ListView({ projectId, data, isLoading, onOpenTask }) {
         <DragOverlay>
           {activeTask ? (
             <div className="border-border bg-card rounded-md border shadow-lg">
-              <TaskRow task={activeTask} onToggle={noop} onOpen={noop} onDelete={noop} />
+              <TaskRow
+                task={activeTask}
+                fields={fields}
+                onToggle={noop}
+                onOpen={noop}
+                onDelete={noop}
+              />
             </div>
           ) : null}
         </DragOverlay>

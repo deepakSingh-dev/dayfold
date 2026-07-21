@@ -17,6 +17,7 @@ import {
 /** One board column = one section (or the "No section" catch-all, id "none"). */
 export function BoardColumn({
   column,
+  fields,
   onToggle,
   onOpen,
   onAddTask,
@@ -108,6 +109,7 @@ export function BoardColumn({
             <BoardCard
               key={task.id}
               task={task}
+              fields={fields}
               containerId={column.id}
               onToggle={onToggle}
               onOpen={onOpen}

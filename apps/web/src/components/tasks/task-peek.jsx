@@ -12,7 +12,11 @@ import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TaskCheckbox } from '@/components/ui/task-checkbox';
-import { BlockEditor } from '@/components/editor/block-editor';
+import { TaskDescriptionEditor } from '@/components/editor/block-editor';
+import { CustomFields } from '@/components/tasks/custom-fields';
+import { TaskDependencies } from '@/components/tasks/task-dependencies';
+import { TaskComments } from '@/components/tasks/task-comments';
+import { TaskAttachments } from '@/components/tasks/task-attachments';
 
 function Field({ label, children }) {
   return (
@@ -218,11 +222,43 @@ export function TaskPeek({ taskId, onClose, onOpenTask }) {
               </Field>
             </div>
 
+            {/* Custom fields */}
+            <CustomFields
+              fields={task.fields}
+              values={task.fieldValues}
+              onSet={(fieldDefId, value) => {
+                api
+                  .setTaskField(taskId, { fieldDefId, value })
+                  .then(settle)
+                  .catch((err) => toast.error(err.message || 'Could not save field'));
+              }}
+            />
+
+            {/* Dependencies */}
+            <TaskDependencies
+              taskId={taskId}
+              blockedBy={task.blockedBy ?? []}
+              blocking={task.blocking ?? []}
+              projectTasks={projectData.data?.tasks ?? []}
+              onAdd={(dependsOnTaskId) => {
+                api
+                  .addDependency(taskId, dependsOnTaskId)
+                  .then(settle)
+                  .catch((err) => toast.error(err.message || 'Could not add dependency'));
+              }}
+              onRemove={(depId) => {
+                api
+                  .removeDependency(depId)
+                  .then(settle)
+                  .catch((err) => toast.error(err.message || 'Could not remove'));
+              }}
+            />
+
             {/* Description — rich block editor */}
             <div>
               <p className="text-muted-foreground mb-1 text-xs font-medium">Description</p>
               <div className="border-border rounded-md border p-3">
-                <BlockEditor taskId={task.id} />
+                <TaskDescriptionEditor taskId={task.id} />
               </div>
             </div>
 
@@ -286,6 +322,16 @@ export function TaskPeek({ taskId, onClose, onOpenTask }) {
                 </form>
               </div>
             </div>
+
+            {/* Attachments */}
+            <TaskAttachments
+              taskId={taskId}
+              attachments={task.attachments ?? []}
+              onChange={settle}
+            />
+
+            {/* Comments */}
+            <TaskComments taskId={taskId} />
           </div>
         )}
 

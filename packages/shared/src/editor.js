@@ -59,3 +59,15 @@ export const SERVER_YJS_ORIGIN = 'dayfold-server';
 
 /** A minimal empty-but-valid editor document. */
 export const EMPTY_DOC = { type: 'doc', content: [{ type: 'paragraph' }] };
+
+/** Deterministic, pleasant cursor color derived from a user id. */
+export function userColor(userId) {
+  let hash = 0;
+  const s = String(userId);
+  for (let i = 0; i < s.length; i += 1) {
+    hash = (hash << 5) - hash + s.charCodeAt(i);
+    hash |= 0;
+  }
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 70%, 55%)`;
+}

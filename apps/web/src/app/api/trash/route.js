@@ -34,6 +34,17 @@ export async function GET() {
         projectName: t.project?.name ?? null,
       }));
 
+    // Deleted pages: only the top of each deleted subtree (parent not deleted).
+    const pageRows = await db.query.pages.findMany({
+      where: and(eq(schema.pages.workspaceId, workspaceId), isNotNull(schema.pages.deletedAt)),
+      orderBy: desc(schema.pages.deletedAt),
+      columns: { id: true, title: true, icon: true, parentPageId: true, deletedAt: true },
+    });
+    const deletedIds = new Set(pageRows.map((p) => p.id));
+    const pages = pageRows
+      .filter((p) => !p.parentPageId || !deletedIds.has(p.parentPageId))
+      .map((p) => ({ id: p.id, title: p.title, icon: p.icon, deletedAt: p.deletedAt }));
+
     return Response.json({
       projects: projects.map((p) => ({
         id: p.id,
@@ -43,6 +54,7 @@ export async function GET() {
         deletedAt: p.deletedAt,
       })),
       tasks,
+      pages,
     });
   } catch (err) {
     return jsonError(err);

@@ -412,3 +412,16 @@ export const taskDocLinksRelations = relations(taskDocLinks, ({ one }) => ({
   doc: one(docs, { fields: [taskDocLinks.docId], references: [docs.id] }),
   task: one(tasks, { fields: [taskDocLinks.taskId], references: [tasks.id] }),
 }));
+
+export const taskDependenciesRelations = relations(taskDependencies, ({ one }) => ({
+  task: one(tasks, {
+    fields: [taskDependencies.taskId],
+    references: [tasks.id],
+    relationName: 'depDependent',
+  }),
+  dependsOn: one(tasks, {
+    fields: [taskDependencies.dependsOnTaskId],
+    references: [tasks.id],
+    relationName: 'depBlocker',
+  }),
+}));

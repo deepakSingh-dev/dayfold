@@ -30,6 +30,7 @@ export function BoardView({ projectId, data, isLoading, onOpenTask }) {
     data,
     projectId,
   });
+  const fields = data?.fields ?? [];
   const [addingSection, setAddingSection] = useState(false);
   const [sectionName, setSectionName] = useState('');
 
@@ -82,6 +83,7 @@ export function BoardView({ projectId, data, isLoading, onOpenTask }) {
           <BoardColumn
             key={column.id}
             column={column}
+            fields={fields}
             onToggle={onToggle}
             onOpen={onOpenTask}
             onAddTask={onAddTask}
@@ -114,7 +116,9 @@ export function BoardView({ projectId, data, isLoading, onOpenTask }) {
         </div>
       </div>
 
-      <DragOverlay>{activeTask ? <BoardCardBody task={activeTask} dragging /> : null}</DragOverlay>
+      <DragOverlay>
+        {activeTask ? <BoardCardBody task={activeTask} fields={fields} dragging /> : null}
+      </DragOverlay>
     </DndContext>
   );
 }

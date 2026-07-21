@@ -4,7 +4,13 @@ import { MoreHorizontal, Trash2 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { TaskCheckbox } from '@/components/ui/task-checkbox';
-import { DueChip, PriorityBadge, SubtaskCounter } from '@/components/tasks/task-chips';
+import {
+  BlockedBadge,
+  DueChip,
+  FieldBadges,
+  PriorityBadge,
+  SubtaskCounter,
+} from '@/components/tasks/task-chips';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 /** One task row in the List view. */
-export function TaskRow({ task, onToggle, onOpen, onDelete }) {
+export function TaskRow({ task, fields, onToggle, onOpen, onDelete }) {
   return (
     <div
       role="button"
@@ -40,6 +46,8 @@ export function TaskRow({ task, onToggle, onOpen, onDelete }) {
       </span>
 
       <div className="flex items-center gap-1.5">
+        <FieldBadges fields={fields} values={task.fieldValues} />
+        <BlockedBadge count={task.blockedBy} />
         <SubtaskCounter total={task.subtaskTotal} done={task.subtaskDone} />
         <PriorityBadge priority={task.priority} />
         <DueChip dueDate={task.dueDate} completed={task.completed} />

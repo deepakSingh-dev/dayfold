@@ -74,9 +74,17 @@ Open <http://localhost:3000>. The sync service health check lives at
 | `npm run db:studio`   | Open Drizzle Studio                              |
 | `npm run lint`        | ESLint across workspaces                         |
 | `npm run format`      | Prettier write                                   |
+| `npm test`            | Vitest unit tests (web + sync)                   |
+| `npm run test:e2e --workspace @dayfold/web` | Playwright smoke suite (needs the stack running) |
 
 > When actively developing the sync service, stop its container
 > (`docker compose stop sync`) and use `npm run dev:sync` for hot reload.
+
+**Demo collaborator:** `demo2@demo.dev` / `demo1234` shares the demo workspace — log
+in as them in a second browser to see live cursors/presence in a shared doc.
+
+**Dev auth bypass:** set `DEV_AUTH_BYPASS=true` in `.env` to skip login during
+development (auto-signs-in as the demo user). Ignored in production builds.
 
 ---
 
@@ -96,11 +104,13 @@ Dayfold is built in agile phases. Current status:
 - [x] **Phase 1** — Auth & workspace bootstrap (Better Auth, signup bootstrap, app shell, theme toggle)
 - [x] **Phase 2** — Projects, sections, tasks + List view, side-peek, My Tasks, Trash
 - [x] **Phase 3** — Board view (kanban DnD) + List drag-reorder + per-project view persistence
-- [~] **Phase 4** — Block editor: **4a done** (Tiptap in task peek, slash menu, blocks, image upload, persistence); 4b pending (turn-into menu, toggle, drag handle)
-- [ ] **Phase 5** — Realtime (Yjs, Hocuspocus, live cursors)
-- [ ] **Phase 6** — Notes app
-- [ ] **Phase 7** — Turn into task (two-way sync)
-- [ ] **Phase 8** — Calendar, custom fields, dependencies
-- [ ] **Phase 9** — Comments, attachments, polish & hardening
+- [x] **Phase 4** — Block editor (Tiptap): slash menu, all blocks, image upload, persistence, turn-into/bubble menu, toggle block, drag-handle reorder
+- [x] **Phase 5** — Realtime: Yjs + Hocuspocus (token auth, Postgres persistence), live collaborative editing, presence avatars, offline (y-indexeddb)
+- [x] **Phase 6** — Notes app: nested page tree (drag re-parent), collaborative page editor, breadcrumbs, sub-page links, trash
+- [x] **Phase 7** — Turn into task: taskBlock node, project/section picker, task_doc_links, two-way sync (checkbox↔task, live push, deletion degradation)
+- [x] **Phase 8** — Calendar view (drag-reschedule), custom fields (per project, peek + badges), dependencies (blocked-by, cycle prevention, indicator)
+- [x] **Phase 9** — Comments (edit/delete own, linkified), attachments (upload/download/thumbnails), keyboard shortcuts, Playwright smoke suite
+
+**All phases complete.** 🎉
 
 See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for the (future) self-hosting path.

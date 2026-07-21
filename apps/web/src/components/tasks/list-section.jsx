@@ -20,6 +20,7 @@ import {
  */
 export function ListSection({
   column,
+  fields,
   onToggle,
   onOpen,
   onDelete,
@@ -124,6 +125,7 @@ export function ListSection({
                 <SortableTaskRow
                   key={task.id}
                   task={task}
+                  fields={fields}
                   containerId={column.id}
                   onToggle={onToggle}
                   onOpen={onOpen}

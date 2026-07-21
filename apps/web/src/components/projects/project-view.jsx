@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
@@ -12,6 +12,7 @@ import {
   List,
   MoreHorizontal,
   Pencil,
+  Settings2,
   Trash2,
 } from 'lucide-react';
 
@@ -27,11 +28,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ProjectDialog } from '@/components/projects/project-dialog';
+import { FieldsDialog } from '@/components/projects/fields-dialog';
 import { ListView } from '@/components/tasks/list-view';
 import { BoardView } from '@/components/board/board-view';
+import { CalendarView } from '@/components/calendar/calendar-view';
 import { TaskPeek } from '@/components/tasks/task-peek';
 
 const VIEW_KEY = (id) => `dayfold:view:${id}`;
+const VALID_VIEWS = ['list', 'board', 'calendar'];
 
 function ViewTab({ active, disabled, icon: Icon, children, onClick }) {
   return (
@@ -60,12 +64,20 @@ export function ProjectView({ projectId, initialProject }) {
   const { data, isLoading } = useProjectData(projectId);
   const [openTaskId, setOpenTaskId] = useState(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [fieldsOpen, setFieldsOpen] = useState(false);
   const [view, setView] = useState('list');
+  const searchParams = useSearchParams();
+
+  // Open a task's peek when arriving via /task/[id] → ?task=…
+  useEffect(() => {
+    const t = searchParams.get('task');
+    if (t) setOpenTaskId(t);
+  }, [searchParams]);
 
   // Restore the last-used view for this project (persisted per project).
   useEffect(() => {
     const saved = typeof window !== 'undefined' && localStorage.getItem(VIEW_KEY(projectId));
-    if (saved === 'list' || saved === 'board') setView(saved);
+    if (VALID_VIEWS.includes(saved)) setView(saved);
   }, [projectId]);
 
   function selectView(next) {
@@ -122,6 +134,9 @@ export function ProjectView({ projectId, initialProject }) {
             <DropdownMenuItem onSelect={() => setEditOpen(true)}>
               <Pencil /> Edit project
             </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setFieldsOpen(true)}>
+              <Settings2 /> Custom fields
+            </DropdownMenuItem>
             <DropdownMenuItem onSelect={onArchiveToggle}>
               {project?.isArchived ? <ArchiveRestore /> : <Archive />}
               {project?.isArchived ? 'Unarchive' : 'Archive'}
@@ -145,21 +160,34 @@ export function ProjectView({ projectId, initialProject }) {
         <ViewTab active={view === 'board'} icon={Columns3} onClick={() => selectView('board')}>
           Board
         </ViewTab>
-        <ViewTab disabled icon={CalendarDays}>
+        <ViewTab
+          active={view === 'calendar'}
+          icon={CalendarDays}
+          onClick={() => selectView('calendar')}
+        >
           Calendar
         </ViewTab>
       </div>
 
       {/* Content */}
       <div className={cn('flex-1', view === 'board' ? 'overflow-hidden' : 'overflow-y-auto')}>
-        {view === 'board' ? (
+        {view === 'board' && (
           <BoardView
             projectId={projectId}
             data={data}
             isLoading={isLoading}
             onOpenTask={setOpenTaskId}
           />
-        ) : (
+        )}
+        {view === 'calendar' && (
+          <CalendarView
+            projectId={projectId}
+            data={data}
+            isLoading={isLoading}
+            onOpenTask={setOpenTaskId}
+          />
+        )}
+        {view === 'list' && (
           <ListView
             projectId={projectId}
             data={data}
@@ -170,6 +198,7 @@ export function ProjectView({ projectId, initialProject }) {
       </div>
 
       <ProjectDialog mode="edit" open={editOpen} onOpenChange={setEditOpen} project={project} />
+      <FieldsDialog open={fieldsOpen} onOpenChange={setFieldsOpen} projectId={projectId} />
 
       {openTaskId && (
         <TaskPeek
